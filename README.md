@@ -61,4 +61,34 @@ Implement a single function:
 
 > []
 
-##Part 2: Resolution Inference Engine
+##Part 2: Resolution Inference Engine (20 points)
+For this part of the assignment, you'll implement a complete resolution inference engine. It should accept CNF sentences
+in the same form as part 1 of this assignment, and answer queries by following the resolution algorithm. As a reminder, 
+that means introducing the negation of the query and resolving until determining that the KB with inclusion of the query 
+is either satisfiable (no new resolutions are possible) or contradictory.
+
+#API
+Implement the following functions:
+
+>TELL :: accepts one argument, a sentence in CNF. Adds that sentence to the KB
+
+>ASK :: accepts one argument, a singe proposition or negated proposition. Returns True (indicating that the query must be True)
+>, of False (indicating that it cannot determine if the query is true)
+
+>CLEAR :: Removes all sentences from the KB
+
+#Demo
+> \>>> TELL(['or', 'not', 'a'], 'b')
+>
+> \>>> TELL(['or', ['not', 'b'], 'c'])
+>
+> \>>> TELL('a')
+>
+>\>>> ASK('c')
+>True
+>\>>> ASK('d')
+>False
+
+##Part 3: CNF Conversion (20 points)
+
+

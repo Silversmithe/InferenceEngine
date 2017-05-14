@@ -1,7 +1,7 @@
 """
-Resolution.py
+FILE:   Resolution.py
 
-Alexander S. Adranly
+AUTHOR: Alexander S. Adranly
 
 A simple resolution function that resolves two sentences that are already in CNF - Conjunctive Normal Form-
 
@@ -169,8 +169,8 @@ def resolve(sentence_1, sentence_2):
 
 # TESTING
 if __name__ == '__main__':
-    # sent1 = ['or', 'a', 'b', 'c']
-    # sent2 = ['or', ['not', 'b']]
+    sent1 = ['or', 'a', 'b', 'c']
+    sent2 = ['or', ['not', 'b']]
     #
     # sent1 = ['or', 'a', 'b', 'c']
     # sent2 = ['or', 'b', ['not', 'c']]
@@ -184,7 +184,7 @@ if __name__ == '__main__':
     # sent1 = ['a']
     # sent2 = ['not', 'a']
 
-    sent1 = ['or', 'alex is happy', 'alex is stressed']
-    sent2 = ['not', 'alex is happy']
+    # sent1 = ['or', 'alex is happy', 'alex is stressed']
+    # sent2 = ['not', 'alex is happy']
 
     print resolve(sentence_1=sent1, sentence_2=sent2)
