@@ -1,5 +1,5 @@
 """
-FILE:   ResolutionInferenceEngine.py
+FILE:   InferenceEngine.py
 
 AUTHOR: Alexander S. Adranly
 
@@ -10,37 +10,72 @@ CNF -Conjunctive Normal Form-
 : 
 
 """
+import Resolution as Resolver
 
 
-class ResolutionInferenceEngine(object):
+class InferenceEngine(object):
     """
     Description of the resolution inference engine
     """
     def __init__(self):
-        pass
+        self.knowledge_base = list()
+        self.inference_scratch_pad = list()
 
-    @staticmethod
-    def tell(cnf_sentence):
+    # API FUNCTIONS
+    def tell(self, cnf_sentence):
         """
         
         :param cnf_sentence: 
         :return: 
         """
-        pass
+        self.knowledge_base.append(cnf_sentence)
 
-    @staticmethod
-    def ask(cnf_query):
+    def ask(self, cnf_query):
         """
         
         :param cnf_query: 
         :return: 
         """
+        negation = ['not', cnf_query]
+        self.inference_scratch_pad.append(negation)
+
+        # keep on resolving until satisfiable ( no new resolutions are possible)
+        # or there is a contradiction
         pass
 
-    @staticmethod
-    def clear():
+    def clear(self):
         """
         
         :return: 
         """
+        del self.knowledge_base[:]
+
+    # HELPER FUNCTIONS
+    def is_cnf_sentence(self, sentence):
+        """
+        Determine if the given sentence is in a valid CNF form or not
+        
+        :param sentence: 
+        :return: 
+        """
         pass
+
+    def display_progress(self):
+        """
+        
+        :return: 
+        """
+        self.display_kb()
+        print "\n", '_'*10
+        print "SCRATCH\n_______"
+        for sentence in self.inference_scratch_pad:
+            print str(sentence)
+
+    def display_kb(self):
+        """
+        
+        :return: 
+        """
+        print "KB\n______"
+        for sentence in self.knowledge_base:
+            print str(sentence)
