@@ -26,32 +26,29 @@ def mark(literal, dictionary, inv=False):
         dictionary[literal] = score
 
 
-def literal_mark(index, sentence, literal_dict, invert_flag=False):
+def count(sentence, dictionary, invert_flag=False):
     """
-    Iterates through the sentence and marks all the literals    
-    
-    :param index: 
     :param sentence: 
-    :param literal_dict: 
-    :param invert_flag:
+    :param dictionary: 
+    :param invert_flag: 
     :return: 
     """
-    if index >= len(sentence):
+    if len(sentence) == 0:
         # dictionary is marked and ready to go
         return
     else:
         flag = invert_flag
-        if type(sentence[index]) == list:
-            literal_mark(0, sentence[index], literal_dict, invert_flag)
+        if type(sentence[0]) == list:
+            count(sentence[0], dictionary, invert_flag)
         else:
-            if sentence[index] == 'not':
+            if sentence[0] == 'not':
                 flag = not invert_flag
             else:
-                mark(sentence[index], literal_dict, invert_flag)
+                mark(sentence[0], dictionary, invert_flag)
                 # if the invert flag is on, it will be turned off now
                 flag = False
 
-        literal_mark(index + 1, sentence, literal_dict, flag)
+        count(sentence[1:], dictionary, flag)
 
 
 # RESOLVE FUNCTION
@@ -79,105 +76,67 @@ def resolve(sentence_1, sentence_2):
     # not val = -1
     # val = 1
     # store the count in a dictionary
-    literal_list = {}
+    literal_count = {}
 
-    literal_mark(0, sentence_1, literal_list, False)
-    literal_mark(0, sentence_2, literal_list, False)
+    # convert into lists if not lists
+    sent1 = list(sentence_1) if type(sentence_1) is not list else sentence_1
+    sent2 = list(sentence_2) if type(sentence_2) is not list else sentence_2
 
-    # CHECK NUMBER OF LITERALS THAT ARE RESOLVABLE
-    literals_to_resolve = []
-    for key in literal_list.keys():
-        if literal_list[key] == 0:
-            literals_to_resolve.append(key)
+    count(sentence=sent1, dictionary=literal_count)
+    count(sentence=sent2, dictionary=literal_count)
 
-    # RESOLVABLE CHECK
-    if len(literals_to_resolve) != 1:
-        # there has to be only one instance to resolve
-        # otherwise it will not five us useful information
-        # or .. it actually just has nothing to resolve against
-        return False
+    literal_to_resolve = [x for x in literal_count.keys() if literal_count[x] == 0]
 
-    # CONTRADICTION CHECK
-    # filter out all key words from the list of keys
-    literal_filter = [x for x in literal_list.keys() if x not in KEY_WORDS]
-
-    if len(literal_filter) == 1:
-        # if there is only one literal here
-        # then there must have been only one type of literal
-        # if that literal has a count of zero
-        # there is a contradiction
+    if len(literal_count.keys()) == 0 and literal_to_resolve is not None:
+        # if there is only one literal counted
+        # if the literal to resolve is not empty
+        # !!! Contradiction !!!
         return []
-
-    # TRY RESOLVING SENTENCES AGAINST EACH OTHER
-    literal_to_resolve = literals_to_resolve[0]
-
-    # remove the literal from each sentence
-    # combine the two sentences together
-    lit_to_remove = None
-    for item in sentence_1:
-        if item == literal_to_resolve:
-            lit_to_remove = item
-        if type(item) == list:
-            if item[0] == 'not':
-                if item[1] == literal_to_resolve:
-                    lit_to_remove = item
+    elif len(literal_to_resolve) != 1:
+        # if there are multiple literals to resolve
+        # or no literals to resolve
+        # then these two sentences cannot resolve !!!
+        return False
     else:
-        sentence_1.remove(lit_to_remove)
+        # resolve the values
+        # remove the resolved value from the NOT section
+        inner_list1 = [x for x in sent1 if type(x) is list and x[0] == 'not' and x[1] != literal_to_resolve[0]]
+        inner_list2 = [x for x in sent2 if type(x) is list and x[0] == 'not' and x[1] != literal_to_resolve[0] and x not in inner_list1]
 
-    for item in sentence_2:
-        if item == literal_to_resolve:
-            lit_to_remove = item
-        if type(item) == list:
-            if item[0] == 'not':
-                if item[1] == literal_to_resolve:
-                    lit_to_remove = item
-    else:
-        sentence_2.remove(lit_to_remove)
+        # filter out all literals that are not negated
+        filtered_sent1 = [x for x in sent1 if type(x) is not list and x != literal_to_resolve[0] and x not in KEY_WORDS]
+        filtered_sent2 = [x for x in sent2 if type(x) is not list and x != literal_to_resolve[0] and x not in KEY_WORDS and x not in filtered_sent1]
 
-    # get rid of the first or's
-    for keyword in KEY_WORDS:
-        try:
-            sentence_1.remove(keyword)
-        except ValueError:
-            pass
+        if len(filtered_sent1) != 0:
+            resolvent.extend(list(filtered_sent1))
 
-        try:
-            sentence_2.remove(keyword)
-        except ValueError:
-            pass
+        if len(filtered_sent2) != 0:
+            resolvent.extend(list(filtered_sent2))
 
-    # stitch together both sentences
-    if len(sentence_1) + len(sentence_2) > 1:
-        resolvent.append('or')
+        if len(inner_list1) != 0:
+            resolvent.extend(list(inner_list1))
 
-    for item in sentence_1:
-        if item not in resolvent:
-            if type(item) is list:
-                resolvent.extend(item)
-            else:
-                resolvent.append(item)
+        if len(inner_list2) != 0:
+            resolvent.extend(list(inner_list2))
 
-    for item in sentence_2:
-        if item not in resolvent:
-            if type(item) is list:
-                resolvent.extend(item)
-            else:
-                resolvent.append(item)
+        if len(resolvent) > 1:
+            resolvent.insert(0, 'or')
 
-    return resolvent
+        print resolvent
+        return resolvent
 
 
 # TESTING
 if __name__ == '__main__':
     sent1 = ['or', 'a', 'b', 'c']
-    sent2 = ['or', ['not', 'b']]
-    #
+    sent2 = ['not', 'b']
+
     # sent1 = ['or', 'a', 'b', 'c']
     # sent2 = ['or', 'b', ['not', 'c']]
 
     # sent1 = ['or', ['not', 'raining'], 'wet ground']
     # sent2 = ['raining']
-
+    #
     # sent1 = ['or', 'a', 'b']
     # sent2 = ['c']
 
