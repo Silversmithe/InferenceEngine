@@ -78,7 +78,7 @@ Implement the following functions:
 >CLEAR :: Removes all sentences from the KB
 
 #Demo
-> \>>> TELL(['or', 'not', 'a'], 'b')
+> \>>> TELL(['or', ['not', 'a'], 'b'])
 >
 > \>>> TELL(['or', ['not', 'b'], 'c'])
 >
@@ -90,5 +90,34 @@ Implement the following functions:
 >False
 
 ##Part 3: CNF Conversion (20 points)
+For this part of the assignment, you'll augment your API's to allow sentences using the full set of propositional logic 
+operators, so you will have to implement the routines to convert expressions to CNF. After this is implemented, both the 
+TELL and ASK functions should allow the specification of arbitrary expressions in the full propositional logic syntax.
+The values returned from ASK should not change, however.
+
+#Demo
+\>>> TELL(['implies', 'a', 'b'])
+
+\>>> TELL(['implies', 'b', 'c'])
+
+\>>> TELL('a')
+
+True
+
+\>>> ASK('d')
+
+False
+
+\>>> ASK(['implies', 'c', 'a'])
+
+True
+
+\>>> ASK(['implies', 'd', 'a'])
+
+True
+
+
+
+
 
 

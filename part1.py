@@ -7,7 +7,7 @@ A simple resolution function that resolves two sentences that are already in CNF
 
 CNF -Conjunctive Normal Form-
 : a conjunction of disjunctions -aka- and AND of ORs
-: 
+: in this code we will just be taking in disjunctions
 
 """
 KEY_WORDS = ['not', 'and', 'or', 'implies', 'biconditional']
@@ -52,7 +52,7 @@ def count(sentence, dictionary, invert_flag=False):
 
 
 # RESOLVE FUNCTION
-def resolve(sentence_1, sentence_2):
+def resolve(s1, s2):
     """
 
     NOTE: 
@@ -61,14 +61,17 @@ def resolve(sentence_1, sentence_2):
         ex:
         [ ... , 'b', ... ] [ ..., 'b', ...]
 
-    :param sentence_1: [ str, str, ... ] : first sentence to resolve against
-    :param sentence_2: [ str, str, ... ] : second sentence to resolve against the first sentence
+    :param s1: [ str, str, ... ] : first sentence to resolve against
+    :param s2: [ str, str, ... ] : second sentence to resolve against the first sentence
     :return: 
     : [ str, str, ... ] : the resolution if the sentences can resolve against each other
     : [ ] : an empty list if the sentences resolve to a contradiction
     : False : if the two sentences cannot resolve
     """
-    print "resolving ", sentence_1, " and ", sentence_2
+    sentence_1 = s1 if type(s1) is list else list(s1)
+    sentence_2 = s2 if type(s2) is list else [s2]
+
+    # print "resolving ", sentence_1, " and ", sentence_2
 
     resolvent = []  # clause produced by a resolution rule
 
@@ -87,15 +90,17 @@ def resolve(sentence_1, sentence_2):
 
     literal_to_resolve = [x for x in literal_count.keys() if literal_count[x] == 0]
 
-    if len(literal_count.keys()) == 0 and literal_to_resolve is not None:
+    if len(literal_count.keys()) == 1 and literal_to_resolve != []:
         # if there is only one literal counted
         # if the literal to resolve is not empty
         # !!! Contradiction !!!
+        # print "contradiction"
         return []
     elif len(literal_to_resolve) != 1:
         # if there are multiple literals to resolve
         # or no literals to resolve
         # then these two sentences cannot resolve !!!
+        # print "no literals to resolve"
         return False
     else:
         # resolve the values
@@ -121,28 +126,8 @@ def resolve(sentence_1, sentence_2):
 
         if len(resolvent) > 1:
             resolvent.insert(0, 'or')
+        elif len(resolvent) == 1:
+            return resolvent[0]
 
+        # print resolvent, '\n'
         return resolvent
-
-
-# TESTING
-if __name__ == '__main__':
-    sent1 = ['or', 'a', 'b', 'c']
-    sent2 = ['not', 'b']
-
-    # sent1 = ['or', 'a', 'b', 'c']
-    # sent2 = ['or', 'b', ['not', 'c']]
-
-    # sent1 = ['or', ['not', 'raining'], 'wet ground']
-    # sent2 = ['raining']
-    #
-    # sent1 = ['or', 'a', 'b']
-    # sent2 = ['c']
-
-    # sent1 = ['a']
-    # sent2 = ['not', 'a']
-
-    # sent1 = ['or', 'alex is happy', 'alex is stressed']
-    # sent2 = ['not', 'alex is happy']
-
-    print resolve(sentence_1=sent1, sentence_2=sent2)
