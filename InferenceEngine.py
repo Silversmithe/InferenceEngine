@@ -35,11 +35,18 @@ class InferenceEngine(object):
 
     def ask(self, cnf_query):
         """
+        Yes, for part 2 it should accept any CNF clause. 
+        For example ["or", "a", "b", ["not", "c"]] is OK, but ["and", "a", "b"] is not.
         
         :param cnf_query: 
         :return: 
         """
-        negation = ['not', cnf_query]
+        # make sure that query is in CNF
+
+        # evaluate CNF QUERY
+        query = cnf_query if type(cnf_query) is list else list(cnf_query)
+        negation = ['not', query ] if query[0] != 'not' else query[1:]
+
         self.inference_scratch_pad.append(negation)
         self.inference_scratch_pad.extend(self.knowledge_base)
         conclusions = list()

@@ -122,7 +122,6 @@ def resolve(sentence_1, sentence_2):
         if len(resolvent) > 1:
             resolvent.insert(0, 'or')
 
-        print resolvent
         return resolvent
 
 
