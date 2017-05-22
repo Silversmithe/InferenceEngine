@@ -67,7 +67,7 @@ in the same form as part 1 of this assignment, and answer queries by following t
 that means introducing the negation of the query and resolving until determining that the KB with inclusion of the query 
 is either satisfiable (no new resolutions are possible) or contradictory.
 
-#API
+###API
 Implement the following functions:
 
 >TELL :: accepts one argument, a sentence in CNF. Adds that sentence to the KB
@@ -77,7 +77,7 @@ Implement the following functions:
 
 >CLEAR :: Removes all sentences from the KB
 
-#Demo
+###Demo
 > \>>> TELL(['or', ['not', 'a'], 'b'])
 >
 > \>>> TELL(['or', ['not', 'b'], 'c'])
@@ -95,7 +95,7 @@ operators, so you will have to implement the routines to convert expressions to 
 TELL and ASK functions should allow the specification of arbitrary expressions in the full propositional logic syntax.
 The values returned from ASK should not change, however.
 
-#Demo
+###Demo
 \>>> TELL(['implies', 'a', 'b'])
 
 \>>> TELL(['implies', 'b', 'c'])
@@ -116,6 +116,8 @@ True
 
 True
 
+###Testing
+In order to facilitate automated testing, all tests that you provide should be using the naming pattern:
 
 
 

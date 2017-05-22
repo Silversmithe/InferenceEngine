@@ -53,9 +53,13 @@ class InferenceEngine(object):
 
         # evaluate CNF QUERY
         query = cnf_query if type(cnf_query) is list else list(cnf_query)
-        negation = self.__not__(query)
+        negation = __not__(query)
+        if negation[0] == 'and':
+            for item in negation[1:]:
+                self.append_to_scratch(item)
+        else:
+            self.append_to_scratch(negation)
 
-        self.inference_scratch_pad.append(negation)
         for info in self.knowledge_base:
             self.append_to_scratch(info)
 
@@ -65,12 +69,12 @@ class InferenceEngine(object):
         # or there is a contradiction
         last_proposition_count = 0
         current_proposition_count = len(self.inference_scratch_pad)
-        self.display_scratch()
-        print "\n"
+        # self.display_scratch()
+        # print "\n"
         conclusions = list()
 
         while last_proposition_count != current_proposition_count:
-            self.display_scratch()
+            # self.display_scratch()
             last_proposition_count = current_proposition_count
             # resolve all information in the scratch pad
             for select in self.inference_scratch_pad:
@@ -95,7 +99,7 @@ class InferenceEngine(object):
             # self.display_scratch()
             # raw_input('press enter to continue')
 
-        self.display_scratch()
+        # self.display_scratch()
         # add conclusions to the scratchpad
         # clear all the inference scratch work
         del self.inference_scratch_pad[:]
@@ -135,31 +139,6 @@ class InferenceEngine(object):
             return 0
         else:
             return num + self.summation(num-1)
-
-    def __not__(self, sentence):
-        """
-        
-        :param sentence: 
-        :return: 
-        """
-        result = []
-
-        if len(sentence) == 1:
-            # only one literal
-            result.append('not')
-            result.append(sentence[0])
-        elif sentence[0] == 'not':
-            # it is already a negated literal
-            result = list(sentence[1])
-
-        elif sentence[0] == 'or':
-            # result would have or in it
-            # an OR of literals
-            result.append('and')
-            for item in sentence[1:]:
-                result.append(self.__not__(item))
-
-        return result
 
     @staticmethod
     def __is_cnf__(s):
@@ -231,3 +210,28 @@ class InferenceEngine(object):
         print "SCRATCH\n_______"
         for sentence in self.inference_scratch_pad:
             print str(sentence)
+
+def __not__(sentence):
+    """
+
+    :param sentence: 
+    :return: 
+    """
+    result = []
+
+    if len(sentence) == 1:
+        # only one literal
+        result.append('not')
+        result.append(sentence[0])
+    elif sentence[0] == 'not':
+        # it is already a negated literal
+        result = list(sentence[1])
+
+    elif sentence[0] == 'or':
+        # result would have or in it
+        # an OR of literals
+        result.append('and')
+        for item in sentence[1:]:
+            result.append(__not__(item))
+
+    return result
