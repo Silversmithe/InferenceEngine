@@ -40,14 +40,20 @@ def __to_cnf__(sentence, result, stage):
     pass
 
 
-def __search_and_convert__(sentence, function):
+def __search_and_convert__(sentence, fxn):
     """
     
     :param sentence: 
-    :param function: 
+    :param result:
+    :param function:
     :return: 
     """
-    pass
+    for item in sentence:
+        if type(item) is list:
+            item = __search_and_convert__(item, fxn)
+
+    return fxn(sentence)
+
 
 def __implication_elimination__(sentence):
     """
@@ -88,6 +94,7 @@ def __double_negation_elimination__(sentence):
     result = inference.__not__(sentence[1])
     return result
 
+
 def __demorgan__(sentence):
     """
     !(A ^ B) = !A v !B
@@ -111,6 +118,9 @@ def __distributivity__(sentence):
     """
     A ^ (B V C) = (A ^ B) v (A ^ C)
     A v (B ^ C) = (A v B) ^ (A v C)
+    
+    note:
+    (A ^ B) ^ (B v C) ?? Does this work??
     
     :param sentence: 
     :return: 

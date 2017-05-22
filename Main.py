@@ -13,6 +13,7 @@ if __name__ == '__main__':
     #
     # result = engine.ask(ask)
     #
-    # print "\nasking: ", ask, " ---> ", result
     # engine.display_progress()
-
+    # print "\nasking: ", ask, " ---> ", result
+    given = ['or', ['and', 'a', 'd'], 'b', ['not', ['not', 'c']]]
+    print part3.__search_and_convert__(given, part2.__not__)
