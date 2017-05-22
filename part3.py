@@ -21,8 +21,11 @@ import part2 as inference
 KEY_WORDS = ['not', 'and', 'or', 'implies', 'biconditional']
 
 
-def __to_cnf__(sentence):
+def __to_cnf__(sentence, result, stage):
     """
+    STAGE:
+    1. biconditional elimination
+    2. implication elimination
     
     :param sentence: 
     :return: 
@@ -37,6 +40,15 @@ def __to_cnf__(sentence):
     pass
 
 
+def __search_and_convert__(sentence, function):
+    """
+    
+    :param sentence: 
+    :param function: 
+    :return: 
+    """
+    pass
+
 def __implication_elimination__(sentence):
     """
     A -> B = !A v B
@@ -44,7 +56,10 @@ def __implication_elimination__(sentence):
     :param sentence: 
     :return: 
     """
-    pass
+    assert(sentence[0] == 'implies')
+    assert(len(sentence) == 3)
+    result = ['or', inference.__not__(sentence[1]), sentence[2]]
+    return result
 
 
 def __biconditional_elimination__(sentence):
@@ -54,8 +69,11 @@ def __biconditional_elimination__(sentence):
     :param sentence: 
     :return: 
     """
-    pass
+    assert(sentence[0] == 'biconditional')
+    assert(len(sentence) == 3)
 
+    result = ['and', ['implies', sentence[1], sentence[2]], ['implies', sentence[2], sentence[1]]]
+    return result
 
 def __double_negation_elimination__(sentence):
     """
@@ -64,9 +82,11 @@ def __double_negation_elimination__(sentence):
     :param sentence:
     :return: 
     """
+    sent = sentence if type(sentence) is list else list(sentence)
+    assert(len(sentence) == 2 and sentence[0] == 'not' and sentence[1][0] == 'not')
 
-    pass
-
+    result = inference.__not__(sentence[1])
+    return result
 
 def __demorgan__(sentence):
     """
@@ -95,5 +115,11 @@ def __distributivity__(sentence):
     :param sentence: 
     :return: 
     """
-    pass
+    assert (len(sentence) == 3)
+    group = sentence[1] if type(sentence[1]) is list else sentence[2]
+    literal = sentence[1] if type(sentence[1]) is str else sentence[2]
+    logic = sentence[0]
 
+    result = [group[0], [logic, literal, group[1]], [logic, literal, group[2]]]
+
+    return result

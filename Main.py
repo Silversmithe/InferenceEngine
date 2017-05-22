@@ -16,6 +16,3 @@ if __name__ == '__main__':
     # print "\nasking: ", ask, " ---> ", result
     # engine.display_progress()
 
-    given = ['not', ['or', 'a', 'b', ['not', 'c']]]
-
-    print part3.__demorgan__(given)

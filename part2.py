@@ -211,8 +211,11 @@ class InferenceEngine(object):
         for sentence in self.inference_scratch_pad:
             print str(sentence)
 
+
 def __not__(sentence):
     """
+    Handles double negation elimination
+    !(!A) = A
 
     :param sentence: 
     :return: 
@@ -231,6 +234,13 @@ def __not__(sentence):
         # result would have or in it
         # an OR of literals
         result.append('and')
+        for item in sentence[1:]:
+            result.append(__not__(item))
+
+    elif sentence[0] == 'and':
+        # result has 'and' in it
+        # an OR of literals is result
+        result.append('or')
         for item in sentence[1:]:
             result.append(__not__(item))
 
