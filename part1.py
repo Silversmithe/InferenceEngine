@@ -11,7 +11,6 @@ CNF -Conjunctive Normal Form-
 
 """
 KEY_WORDS = ['not', 'and', 'or', 'implies', 'biconditional']
-BOOL = {'not': -1, 'and': 0, 'or': 1, 'implies': 2, 'biconditional': 3}
 
 
 # HELPER FUNCTIONS

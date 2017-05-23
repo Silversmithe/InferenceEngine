@@ -11,6 +11,7 @@ CNF -Conjunctive Normal Form-
 
 """
 import part1 as resolver
+import part3 as conversion
 
 
 class InferenceEngine(object):
@@ -36,7 +37,10 @@ class InferenceEngine(object):
                 break
         else:
             # add to scratch pad
-            self.knowledge_base.append(cnf_sentence)
+            if not __is_cnf__(cnf_sentence):
+                self.knowledge_base.append(conversion.__to_cnf__(cnf_sentence))
+            else:
+                self.knowledge_base.append(cnf_sentence)
 
     def ask(self, cnf_query):
         """
@@ -47,12 +51,13 @@ class InferenceEngine(object):
         :return: 
         """
         # make sure that query is in CNF
-        if self.__is_cnf__(s=cnf_query) is False:
-            print "not cnf form!!"
-            return False
+        if __is_cnf__(s=cnf_query) is False:
+            convert = conversion.__to_cnf__(cnf_query)
+        else:
+            convert = cnf_query
 
         # evaluate CNF QUERY
-        query = cnf_query if type(cnf_query) is list else list(cnf_query)
+        query = convert if type(convert) is list else list(convert)
         negation = __not__(query)
         if negation[0] == 'and':
             for item in negation[1:]:
@@ -69,12 +74,9 @@ class InferenceEngine(object):
         # or there is a contradiction
         last_proposition_count = 0
         current_proposition_count = len(self.inference_scratch_pad)
-        # self.display_scratch()
-        # print "\n"
         conclusions = list()
 
         while last_proposition_count != current_proposition_count:
-            # self.display_scratch()
             last_proposition_count = current_proposition_count
             # resolve all information in the scratch pad
             for select in self.inference_scratch_pad:
@@ -86,6 +88,7 @@ class InferenceEngine(object):
                     elif len(result) == 0:
                         # !!! contradiction !!!
                         # means that the proposed solution is true
+                        del self.inference_scratch_pad[:]
                         return True
                     else:
                         # !!! there is an actual resolution answer !!!
@@ -96,10 +99,8 @@ class InferenceEngine(object):
 
             del conclusions[:]  # clean conclusion list for next time
             current_proposition_count = len(self.inference_scratch_pad)
-            # self.display_scratch()
             # raw_input('press enter to continue')
 
-        # self.display_scratch()
         # add conclusions to the scratchpad
         # clear all the inference scratch work
         del self.inference_scratch_pad[:]
@@ -129,87 +130,51 @@ class InferenceEngine(object):
             # add to scratch pad
             self.inference_scratch_pad.append(sentence)
 
-    def summation(self, num):
-        """
-        
-        :param num: 
-        :return: 
-        """
-        if int(num) == 0:
-            return 0
-        else:
-            return num + self.summation(num-1)
 
-    @staticmethod
-    def __is_cnf__(s):
-        """
-        Determine if the given sentence is in a valid CNF form or not
-        
-        :param s: 
-        :return: 
-        """
-        sentence = s if type(s) is list else list(s)
+def __is_cnf__(s):
+    """
+    Determine if the given sentence is in a valid CNF form or not
 
-        if type(sentence) is not list:
+    :param s: 
+    :return: 
+    """
+    sentence = s if type(s) is list else list(s)
+
+    if type(sentence) is not list:
+        return False
+    elif len(sentence) == 0:
+        return False
+    elif len(sentence) == 1:
+        if sentence[0] in resolver.KEY_WORDS:
             return False
-        elif len(sentence) == 0:
-            return False
-        elif len(sentence) == 1:
-            if sentence[0] in resolver.KEY_WORDS:
+    else:
+        # len(sentence) > 1
+        if sentence[0] == 'or':
+            for item in sentence[1:]:
+                if type(item) is list:
+                    # process as list (should have not)
+                    if item[0] != 'not':
+                        return False
+                    elif len(item) != 2:
+                        return False
+
+                else:
+                    # item is not a list
+                    if type(item) is not str:
+                        return False
+
+                    if item in resolver.KEY_WORDS:
+                        return False
+
+        elif sentence[0] == 'not':
+            if len(sentence) != 2:
+                return False
+            if sentence[1] in resolver.KEY_WORDS:
                 return False
         else:
-            # len(sentence) > 1
-            if sentence[0] == 'or':
-                for item in sentence[1:]:
-                    if type(item) is list:
-                        # process as list (should have not)
-                        if item[0] != 'not':
-                            return False
-                        elif len(item) != 2:
-                            return False
+            return False
 
-                    else:
-                        # item is not a list
-                        if type(item) is not str:
-                            return False
-
-                        if item in resolver.KEY_WORDS:
-                            return False
-
-            elif sentence[0] == 'not':
-                if len(sentence) != 2:
-                    return False
-                if sentence[1] in resolver.KEY_WORDS:
-                    return False
-            else:
-                return False
-
-        return True
-
-    def display_progress(self):
-        """
-        
-        :return: 
-        """
-        self.display_kb()
-        print "\n", '_'*10
-        print "SCRATCH\n_______"
-        for sentence in self.inference_scratch_pad:
-            print str(sentence)
-
-    def display_kb(self):
-        """
-        
-        :return: 
-        """
-        print "KB\n______"
-        for sentence in self.knowledge_base:
-            print str(sentence)
-
-    def display_scratch(self):
-        print "SCRATCH\n_______"
-        for sentence in self.inference_scratch_pad:
-            print str(sentence)
+    return True
 
 
 def __not__(sentence):
@@ -217,31 +182,24 @@ def __not__(sentence):
     Handles double negation elimination
     !(!A) = A
 
+    only negate on a single level
     :param sentence: 
     :return: 
     """
-    result = []
 
     if len(sentence) == 1:
-        # only one literal
-        result.append('not')
-        result.append(sentence[0])
-    elif sentence[0] == 'not':
-        # it is already a negated literal
-        result = list(sentence[1])
+        return ['not', sentence[0]]
+    elif sentence[0] == 'and':
+        sentence[0] = 'or'
+        for i in range(1, len(sentence)):
+            sentence[i] = __not__(sentence[i])
 
     elif sentence[0] == 'or':
-        # result would have or in it
-        # an OR of literals
-        result.append('and')
-        for item in sentence[1:]:
-            result.append(__not__(item))
+        sentence[0] = 'and'
+        for i in range(1, len(sentence)):
+            sentence[i] = __not__(sentence[i])
 
-    elif sentence[0] == 'and':
-        # result has 'and' in it
-        # an OR of literals is result
-        result.append('or')
-        for item in sentence[1:]:
-            result.append(__not__(item))
+    elif sentence[0] == 'not':
+        sentence = [sentence[1]]
 
-    return result
+    return sentence
